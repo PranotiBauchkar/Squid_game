@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Car Combat</title>
+<style>
+body{ 
+    margin:0; 
+    background:#0b0b15; 
+    font-family:sans-serif; 
+    color:white; 
+    display:flex; 
+    flex-direction:column; 
+    align-items:center; 
+}
+#score,#timer{ 
+    font-size:2em; 
+    margin:10px; 
+}
+canvas{ 
+    background:#141427; 
+    border:2px solid cyan; 
+}
+</style>
+</head>
+<body>
+<div id="score">Score: 0</div>
+<div id="timer">00:01:00</div>
+<canvas id="game" width="600" height="400"></canvas>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+
+let car = {x:270, y:350, w:60, h:30};
+let coins = [], obstacles = [], score = 0, totalTime = 60, gameOver = false;
+
+// --- Format seconds as hh:mm:ss ---
+function formatTime(seconds){
+    const h = Math.floor(seconds/3600).toString().padStart(2,'0');
+    const m = Math.floor((seconds%3600)/60).toString().padStart(2,'0');
+    const s = (seconds%60).toString().padStart(2,'0');
+    return `${h}:${m}:${s}`;
+}
+
+// Player movement
+document.addEventListener('keydown', e => {
+    if(gameOver) return;
+    if(e.key==='ArrowLeft' && car.x>0) car.x-=15;
+    if(e.key==='ArrowRight' && car.x<540) car.x+=15;
+});
+
+// Spawn objects
+function spawnCoin(){ if(!gameOver) coins.push({x:Math.random()*540,y:0,w:30,h:30}); }
+function spawnObstacle(){ if(!gameOver) obstacles.push({x:Math.random()*540,y:0,w:60,h:30}); }
+
+// Update objects
+function update(){
+    coins.forEach((c,i)=>{
+        c.y+=3;
+        if(c.y>400) coins.splice(i,1);
+        if(car.x< c.x+c.w && car.x+car.w>c.x && car.y<c.y+c.h && car.y+car.h>c.y){
+            coins.splice(i,1); 
+            score++; 
+            document.getElementById('score').innerText='Score: '+score;
+        }
+    });
+
+    obstacles.forEach((o,i)=>{
+        o.y+=3;
+        if(o.y>400) obstacles.splice(i,1);
+        if(car.x< o.x+o.w && car.x+car.w>o.x && car.y<o.y+o.h && car.y+car.h>o.y){
+            if(!gameOver) endGame(score, "Crashed!");
+        }
+    });
+}
+
+// Draw everything
+function draw(){
+    ctx.clearRect(0,0,600,400);
+    ctx.fillStyle='cyan'; 
+    ctx.fillRect(car.x,car.y,car.w,car.h);
+    coins.forEach(c=>{ ctx.fillStyle='yellow'; ctx.fillRect(c.x,c.y,c.w,c.h); });
+    obstacles.forEach(o=>{ ctx.fillStyle='red'; ctx.fillRect(o.x,o.y,o.w,o.h); });
+}
+
+// Game loop
+function loop(){ 
+    if(!gameOver){ 
+        update(); 
+        draw(); 
+        requestAnimationFrame(loop); 
+    }
+}
+
+// End game: save score & redirect
+function endGame(finalScore, message="Time Up!"){
+    gameOver=true;
+    alert(`${message} Score: ${finalScore}`);
+    const playerName = prompt("Enter your name for the leaderboard:", "Player") || "Player";
+    let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+    leaderboard.push({player:playerName, game:'Car Combat', score:finalScore});
+    localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+    window.location.href='leaderboard.html';
+}
+
+// Spawn intervals
+setInterval(spawnCoin,1000);
+setInterval(spawnObstacle,1500);
+
+// Timer countdown
+document.getElementById('timer').innerText = formatTime(totalTime);
+const timerInterval = setInterval(()=>{
+    if(gameOver) return;
+    totalTime--;
+    document.getElementById('timer').innerText = formatTime(totalTime);
+    if(totalTime <= 0){
+        endGame(score);
+    }
+},1000);
+
+loop();
+</script>
+</body>
+</html>

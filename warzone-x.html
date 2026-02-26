@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Warzone X</title>
+<style>
+body{
+    margin:0;
+    background:#0b0b15;
+    font-family:sans-serif;
+    color:white;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+#score,#timer{
+    font-size:2em;
+    margin:10px;
+}
+.grid{
+    display:grid;
+    grid-template-columns: repeat(2,100px);
+    grid-gap:10px;
+    margin-top:20px;
+}
+.block{
+    width:100px;
+    height:100px;
+    cursor:pointer;
+    transition: all 0.2s;
+    border:2px solid cyan;
+}
+</style>
+</head>
+<body>
+
+<div id="score">Score: 0</div>
+<div id="timer">00:01:00</div>
+<div class="grid" id="grid"></div>
+
+<script>
+const colors=['red','green','blue','yellow'];
+let sequence=[], userIndex=0, score=0, totalTime=60, gameOver=false;
+const grid=document.getElementById('grid');
+
+// --- Helper: format seconds as hh:mm:ss ---
+function formatTime(seconds){
+    const h = Math.floor(seconds/3600).toString().padStart(2,'0');
+    const m = Math.floor((seconds%3600)/60).toString().padStart(2,'0');
+    const s = (seconds%60).toString().padStart(2,'0');
+    return `${h}:${m}:${s}`;
+}
+
+function createBlocks(){
+    grid.innerHTML='';
+    colors.forEach(c=>{
+        const div=document.createElement('div');
+        div.classList.add('block');
+        div.style.background=c;
+        div.addEventListener('click',()=>checkClick(c));
+        grid.appendChild(div);
+    });
+}
+
+function nextStep(){
+    const color=colors[Math.floor(Math.random()*colors.length)];
+    sequence.push(color);
+    sequence.forEach((c,i)=>{
+        setTimeout(()=>{
+            document.querySelectorAll('.block')[colors.indexOf(c)].style.opacity=0.5;
+            setTimeout(()=>{ document.querySelectorAll('.block')[colors.indexOf(c)].style.opacity=1; },300);
+        }, i*500);
+    });
+    userIndex=0;
+}
+
+function checkClick(color){
+    if(gameOver) return;
+    if(color===sequence[userIndex]){
+        score++;
+        document.getElementById('score').innerText='Score: '+score;
+        userIndex++;
+        if(userIndex===sequence.length) setTimeout(nextStep,500);
+    } else {
+        gameOver=true;
+        endGame(score);
+    }
+}
+
+function endGame(finalScore){
+    const playerName = prompt("Game Over! Enter your name for the leaderboard:", "Player") || "Player";
+    let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+    leaderboard.push({player:playerName, game:'Warzone X', score:finalScore});
+    localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+    window.location.href = 'leaderboard.html';
+}
+
+createBlocks();
+nextStep();
+
+// --- Timer countdown ---
+document.getElementById('timer').innerText = formatTime(totalTime);
+const timerInterval = setInterval(()=>{
+    if(gameOver) return;
+    totalTime--;
+    document.getElementById('timer').innerText = formatTime(totalTime);
+    if(totalTime <= 0){
+        gameOver=true;
+        endGame(score);
+    }
+},1000);
+
+</script>
+</body>
+</html>

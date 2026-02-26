@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyber Strike</title>
+<style>
+body{ margin:0; background:#0b0b15; font-family:sans-serif; color:white; display:flex; flex-direction:column; align-items:center; }
+#score,#timer{ font-size:2em; margin:10px; }
+canvas{ background:#0b0b15; border:2px solid cyan; }
+</style>
+</head>
+<body>
+
+<div id="score">Score: 0</div>
+<div id="timer">00:01:00</div>
+<canvas id="game" width="600" height="400"></canvas>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+
+let ship = {x:280, y:350, w:40, h:20};
+let bullets = [], aliens = [], score = 0, totalTime = 60, gameOver = false;
+
+// --- Format seconds as hh:mm:ss ---
+function formatTime(seconds){
+    const h = Math.floor(seconds/3600).toString().padStart(2,'0');
+    const m = Math.floor((seconds%3600)/60).toString().padStart(2,'0');
+    const s = (seconds%60).toString().padStart(2,'0');
+    return `${h}:${m}:${s}`;
+}
+
+// Player movement & shooting
+document.addEventListener('keydown', e=>{
+    if(gameOver) return;
+    if(e.key==='ArrowLeft' && ship.x>0) ship.x-=15;
+    if(e.key==='ArrowRight' && ship.x<560) ship.x+=15;
+    if(e.key===' ' && !gameOver) bullets.push({x:ship.x+15, y:ship.y, w:10, h:20, dy:-5});
+});
+
+// Spawn aliens
+function spawnAlien(){ if(!gameOver) aliens.push({x:Math.random()*560, y:0, w:40, h:20, dy:2}); }
+
+// Update game state
+function update(){
+    bullets.forEach((b,i)=>{
+        b.y += b.dy;
+        aliens.forEach((a,j)=>{
+            if(b.x<b.x+a.w && b.x+b.w>a.x && b.y<b.y+a.h && b.y+b.h>a.y){
+                bullets.splice(i,1);
+                aliens.splice(j,1);
+                score++;
+                document.getElementById('score').innerText = 'Score: ' + score;
+            }
+        });
+    });
+    aliens.forEach(a=>{
+        a.y += a.dy;
+        if(a.y>400){ a.y=0; a.x=Math.random()*560; }
+    });
+}
+
+// Draw game objects
+function draw(){
+    ctx.clearRect(0,0,600,400);
+    ctx.fillStyle='cyan'; ctx.fillRect(ship.x, ship.y, ship.w, ship.h);
+    bullets.forEach(b=>{ ctx.fillStyle='yellow'; ctx.fillRect(b.x, b.y, b.w, b.h); });
+    aliens.forEach(a=>{ ctx.fillStyle='red'; ctx.fillRect(a.x, a.y, a.w, a.h); });
+}
+
+// Game loop
+function loop(){
+    if(!gameOver){ update(); draw(); requestAnimationFrame(loop); }
+}
+
+// End game: save score & redirect to leaderboard
+function endGame(finalScore){
+    gameOver = true;
+    const playerName = prompt("Time Up! Enter your name for the leaderboard:", "Player") || "Player";
+    let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+    leaderboard.push({player: playerName, game: 'Cyber Strike', score: finalScore});
+    localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+    window.location.href = 'leaderboard.html';
+}
+
+// Spawn aliens
+setInterval(spawnAlien, 1500);
+
+// Countdown timer
+document.getElementById('timer').innerText = formatTime(totalTime);
+const timerInterval = setInterval(()=>{
+    if(gameOver) return;
+    totalTime--;
+    document.getElementById('timer').innerText = formatTime(totalTime);
+    if(totalTime <= 0){
+        endGame(score);
+    }
+}, 1000);
+
+loop();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leaderboard | LAST REALM</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+<style>
+body {
+  font-family: 'Orbitron', sans-serif;
+  background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+  color: white;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+}
+
+h1 {
+  font-size: 3rem;
+  color: #ff0055;
+  text-shadow: 0 0 20px #ff0055, 0 0 40px #ff0055;
+  margin-bottom: 2rem;
+}
+
+table {
+  width: 100%;
+  max-width: 600px;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+th, td {
+  padding: 0.8rem;
+  border-bottom: 1px solid #00ffff;
+}
+
+th {
+  font-size: 1.2rem;
+  color: #00ffff;
+}
+
+tr:nth-child(even){
+  background-color: rgba(0,255,255,0.1);
+}
+
+tr:hover{
+  background-color: rgba(0,255,255,0.3);
+}
+
+button {
+  margin-top: 1rem;
+  background: #00ffff;
+  color: #000;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+</style>
+</head>
+<body>
+
+<h1>Leaderboard</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Rank</th>
+      <th>Player</th>
+      <th>Game</th>
+      <th>Score</th>
+    </tr>
+  </thead>
+  <tbody id="leaderboardBody">
+    <!-- Scores will populate here -->
+  </tbody>
+</table>
+
+<button onclick="clearLeaderboard()">Clear Leaderboard</button>
+
+<script>
+// Get leaderboard from localStorage
+let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+
+// Sort descending by score
+leaderboard.sort((a,b) => b.score - a.score);
+
+// Render leaderboard with ranks
+function renderLeaderboard(){
+  const tbody = document.getElementById('leaderboardBody');
+  tbody.innerHTML = '';
+  leaderboard.forEach((entry,index)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${index+1}</td><td>${entry.player}</td><td>${entry.game}</td><td>${entry.score}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// Clear leaderboard
+function clearLeaderboard(){
+  if(confirm("Are you sure you want to clear the leaderboard?")){
+    leaderboard = [];
+    localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+    renderLeaderboard();
+  }
+}
+
+renderLeaderboard();
+</script>
+
+</body>
+</html>

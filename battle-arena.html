@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Battle Arena</title>
+<style>
+body{ 
+    margin:0; 
+    background:#0b0b15; 
+    font-family:sans-serif; 
+    color:white; 
+    display:flex; 
+    flex-direction:column; 
+    align-items:center;
+}
+#score,#timer{ 
+    font-size:2em; 
+    margin:10px;
+}
+canvas{ 
+    background:#141427; 
+    border:2px solid cyan; 
+}
+</style>
+</head>
+<body>
+
+<div id="score">Score: 0</div>
+<div id="timer">00:01:00</div>
+<canvas id="game" width="600" height="400"></canvas>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+
+let player = {x:280, y:350, w:30, h:30};
+let objects = [], score = 0, totalTime = 60, gameOver = false;
+
+// --- Format seconds as hh:mm:ss ---
+function formatTime(seconds){
+    const h = Math.floor(seconds/3600).toString().padStart(2,'0');
+    const m = Math.floor((seconds%3600)/60).toString().padStart(2,'0');
+    const s = (seconds%60).toString().padStart(2,'0');
+    return `${h}:${m}:${s}`;
+}
+
+// Player movement
+document.addEventListener('keydown', e => {
+    if(gameOver) return;
+    if(e.key==='ArrowLeft' && player.x>0) player.x-=15;
+    if(e.key==='ArrowRight' && player.x<570) player.x+=15;
+});
+
+// Spawn falling objects
+function spawnObject(){ 
+    if(!gameOver) objects.push({x:Math.random()*570,y:0,w:30,h:30,dy:3}); 
+}
+
+// Update objects & check collisions
+function update(){
+    objects.forEach((o,i)=>{
+        o.y+=o.dy;
+        if(o.y>400){ 
+            objects.splice(i,1); 
+            score++; 
+            document.getElementById('score').innerText='Score: '+score;
+        }
+        if(player.x<o.x+o.w && player.x+player.w>o.x && player.y<o.y+o.h && player.y+player.h>o.y){
+            if(!gameOver) endGame(score, "Hit!");
+        }
+    });
+}
+
+// Draw player and objects
+function draw(){
+    ctx.clearRect(0,0,600,400);
+    ctx.fillStyle='cyan'; 
+    ctx.fillRect(player.x,player.y,player.w,player.h);
+    objects.forEach(o=>{ ctx.fillStyle='red'; ctx.fillRect(o.x,o.y,o.w,o.h); });
+}
+
+// Game loop
+function loop(){ 
+    if(!gameOver){ 
+        update(); 
+        draw(); 
+        requestAnimationFrame(loop); 
+    }
+}
+
+// End game: save score and redirect
+function endGame(finalScore, message="Time Up!"){
+    gameOver = true;
+    alert(`${message} Score: ${finalScore}`);
+    const playerName = prompt("Enter your name for the leaderboard:", "Player") || "Player";
+    let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+    leaderboard.push({player:playerName, game:'Battle Arena', score:finalScore});
+    localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+    window.location.href='leaderboard.html';
+}
+
+// Intervals
+setInterval(spawnObject,1200);
+
+// Timer countdown
+document.getElementById('timer').innerText = formatTime(totalTime);
+const timerInterval = setInterval(()=>{
+    if(gameOver) return;
+    totalTime--;
+    document.getElementById('timer').innerText = formatTime(totalTime);
+    if(totalTime <= 0){
+        endGame(score);
+    }
+},1000);
+
+loop();
+</script>
+
+</body>
+</html>

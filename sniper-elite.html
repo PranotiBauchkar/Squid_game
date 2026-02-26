@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sniper Elite</title>
+<style>
+body{ 
+  margin:0; 
+  background:#0b0b15; 
+  font-family:sans-serif; 
+  color:white; 
+  display:flex; 
+  flex-direction:column; 
+  align-items:center;
+}
+#score,#timer{ 
+  font-size:2em; 
+  margin:10px;
+}
+canvas{ 
+  background:#141427; 
+  border:2px solid cyan; 
+}
+</style>
+</head>
+<body>
+
+<div id="score">Score: 0</div>
+<div id="timer">00:01:00</div>
+<canvas id="game" width="600" height="400"></canvas>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+let targets = [], score = 0, totalTime = 60, gameOver = false;
+
+// --- Format seconds as hh:mm:ss ---
+function formatTime(seconds){
+    const h = Math.floor(seconds/3600).toString().padStart(2,'0');
+    const m = Math.floor((seconds%3600)/60).toString().padStart(2,'0');
+    const s = (seconds%60).toString().padStart(2,'0');
+    return `${h}:${m}:${s}`;
+}
+
+// Spawn targets randomly
+function spawnTarget(){ 
+  if(gameOver) return;
+  targets.push({
+    x: Math.random()*550, 
+    y: Math.random()*350, 
+    r: 20, 
+    dx: (Math.random()*2+1)*(Math.random()<0.5?-1:1), 
+    dy: (Math.random()*2+1)*(Math.random()<0.5?-1:1)
+  }); 
+}
+
+// Shooting
+canvas.addEventListener('click', e=>{
+  if(gameOver) return;
+  let rect = canvas.getBoundingClientRect();
+  let mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  targets.forEach((t,i)=>{
+      if(Math.hypot(mx-t.x,my-t.y) < t.r){
+          targets.splice(i,1); 
+          score++; 
+          document.getElementById('score').innerText = 'Score: ' + score;
+      }
+  });
+});
+
+// Update positions
+function update(){
+  targets.forEach(t=>{
+    t.x += t.dx; t.y += t.dy;
+    if(t.x<20||t.x>580) t.dx*=-1;
+    if(t.y<20||t.y>380) t.dy*=-1;
+  });
+}
+
+// Draw targets
+function draw(){
+  ctx.clearRect(0,0,600,400);
+  targets.forEach(t=>{
+    ctx.beginPath();
+    ctx.arc(t.x,t.y,t.r,0,2*Math.PI);
+    ctx.fillStyle='red';
+    ctx.fill();
+  });
+}
+
+// Game loop
+function loop(){
+  if(!gameOver){
+    update();
+    draw();
+    requestAnimationFrame(loop);
+  }
+}
+
+// End game function: save score and redirect
+function endGame(finalScore){
+  gameOver = true;
+  const playerName = prompt("Time Up! Enter your name for the leaderboard:", "Player") || "Player";
+  let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+  leaderboard.push({player: playerName, game: 'Sniper Elite', score: finalScore});
+  localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+  window.location.href = 'leaderboard.html';
+}
+
+// Spawn targets and countdown
+setInterval(spawnTarget, 1000);
+
+// Timer countdown
+document.getElementById('timer').innerText = formatTime(totalTime);
+const timerInterval = setInterval(()=>{
+  if(gameOver) return;
+  totalTime--;
+  document.getElementById('timer').innerText = formatTime(totalTime);
+  if(totalTime <= 0){
+    endGame(score);
+  }
+}, 1000);
+
+loop();
+</script>
+
+</body>
+</html>

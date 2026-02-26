@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LAST REALM | Final Survival Arena</title>
+<button id="themeToggle" style="position:fixed;top:10px;right:10px;z-index:1000;">🌙</button>
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
+<style>
+body, html {
+  margin:0;
+  padding:0;
+  font-family: 'Orbitron', sans-serif;
+  background:#0b0b15;
+  color:white;
+  overflow-x:hidden;
+}
+
+/* Hero Section */
+.hero-section { height:100vh; position:relative; overflow:hidden; background:url('back1.png') center/cover no-repeat; }
+.hero-section::before { content:""; position:absolute; top:0; left:0; width:100%; height:100%; background:linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(255,0,85,0.4)); z-index:1; backdrop-filter:blur(2px); animation:fadeIn 3s forwards; }
+.hero-overlay { position:relative; z-index:2; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; animation:slideUp 2s forwards; }
+.neon-text{ color:#ff0055; text-shadow:0 0 20px #ff0055,0 0 40px #ff0055,0 0 60px #ff0055; }
+.glow-btn{ background:#ff0055; color:white; padding:14px 36px; border-radius:40px; border:none; box-shadow:0 0 20px #ff0055,0 0 40px #ff0055; font-weight:bold; transition:0.4s; }
+.glow-btn:hover{ transform:scale(1.1); box-shadow:0 0 50px #ff0055,0 0 80px #ff00aa; }
+.symbol{ position:absolute; font-size:3rem; color:rgba(255,255,255,0.2); animation:floatSymbols 6s infinite ease-in-out; }
+
+/* About Section */
+.about-section{ background:url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1920') center/cover no-repeat; background-attachment:fixed; position:relative; }
+.about-section::before{ content:""; position:absolute; width:100%; height:100%; background:rgba(0,0,0,0.85); }
+.about-content{ position:relative; z-index:2; padding:60px 20px; text-align:center; }
+.counter{ font-size:40px; color:#00f7ff; text-shadow:0 0 15px #00f7ff,0 0 30px #00f7ff; font-weight:bold; }
+
+/* Leaderboard Section */
+.leaderboard-section{ padding:60px 20px; text-align:center; }
+.leaderboard-section h2{ font-size:2.5rem; margin-bottom:2rem; color:#00ffff; text-shadow:0 0 20px #00ffff,0 0 40px #00ffff; }
+.leaderboard-section table{ width:100%; max-width:800px; margin:0 auto; border-collapse:collapse; background-color: rgba(0,0,0,0.5); }
+.leaderboard-section th, .leaderboard-section td{ padding:0.8rem; border-bottom:1px solid #00ffff; color:white; }
+.leaderboard-section th{ color:#00ffff; }
+.leaderboard-section tr:nth-child(even){ background-color: rgba(0,255,255,0.1); }
+.leaderboard-section tr:hover{ background-color: rgba(0,255,255,0.3); }
+
+/* Designer/Producer Cards */
+.team-section{ padding:60px 20px; text-align:center; }
+.team-section h2{ font-size:2.5rem; margin-bottom:2rem; color:#ff00ff; text-shadow:0 0 20px #ff00ff,0 0 40px #ff00ff; }
+.team-cards{ display:flex; flex-wrap:wrap; justify-content:center; gap:30px; }
+.card{ background: rgba(26,26,26,0.9); padding:20px; border-radius:15px; width:220px; box-shadow:0 0 20px #ff00ff; text-align:center; }
+.card h3{ margin-bottom:5px; color:#00ffff; }
+.card p{ font-size:1.1rem; color:white; }
+
+/* Info Section */
+.info-section{ padding:60px 20px; text-align:center; background:#111; }
+.info-section h2{ font-size:2rem; margin-bottom:20px; color:#ff0055; }
+.info-section p{ font-size:1.1rem; color:white; max-width:800px; margin:0 auto; }
+
+/* Animations */
+@keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+@keyframes slideUp { from{transform:translateY(50px); opacity:0;} to{transform:translateY(0); opacity:1;} }
+@keyframes floatSymbols{ 0%{transform:translateY(0) rotate(0deg);opacity:0.2;} 50%{transform:translateY(-30px) rotate(180deg);opacity:0.5;} 100%{transform:translateY(0) rotate(360deg);opacity:0.2;} }
+</style>
+</head>
+
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-black bg-opacity-75">
+  <div class="container">
+    <a class="navbar-brand fw-bold neon-text" href="#">LAST REALM</a>
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link text-light" href="games.html">Games</a></li>
+        <li class="nav-item"><a class="nav-link text-light" href="register.html">Register</a></li>
+        <li class="nav-item"><a class="nav-link text-light" href="leaderboard.html">Leaderboard</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="symbol" style="top:10%; left:20%;">▲</div>
+  <div class="symbol" style="top:30%; left:80%;">■</div>
+  <div class="symbol" style="top:60%; left:50%;">●</div>
+  <div class="symbol" style="top:80%; left:30%;">▲</div>
+  <div class="symbol" style="top:50%; left:70%;">■</div>
+
+  <div class="hero-overlay">
+    <h1 class="display-2 fw-bold neon-text mb-4">Only One Survives</h1>
+    <p class="lead mb-4">Step into the deadliest survival arena ever created.</p>
+    <a href="register.html" class="btn glow-btn btn-lg">Enter The Arena</a>
+  </div>
+</section>
+
+<!-- About Section -->
+<section class="about-section text-light">
+  <div class="container about-content">
+    <h2 class="mb-4 neon-text">About The Arena</h2>
+    <p class="mb-5">
+      LAST REALM is a high-stakes survival competition where strategy,
+      courage, and intelligence determine who survives.
+    </p>
+    <div class="row text-center">
+      <div class="col-md-4 mb-4">
+        <h3 class="counter" data-target="5000">0</h3>
+        <p>Players Joined</p>
+      </div>
+      <div class="col-md-4 mb-4">
+        <h3 class="counter" data-target="10">0</h3>
+        <p>Deadly Games</p>
+      </div>
+      <div class="col-md-4 mb-4">
+        <h3 class="counter" data-target="100000">0</h3>
+        <p>Prize Pool ($)</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Leaderboard Section -->
+<section class="leaderboard-section">
+  <h2>Top Players</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>Player</th>
+        <th>Game</th>
+        <th>Score</th>
+      </tr>
+    </thead>
+    <tbody id="leaderboardBody"></tbody>
+  </table>
+</section>
+
+<!-- Designer & Producer Section -->
+<section class="team-section">
+  <h2>Team Behind The Game</h2>
+  <div class="team-cards">
+    <div class="card">
+      <h3>Designer</h3>
+      <p>Akansha Salunkhe</p>
+    </div>
+    <div class="card">
+      <h3>Producer</h3>
+      <p>Pranoti Bauchkar</p>
+    </div>
+  </div>
+</section>
+
+<!-- Game Info Section -->
+<section class="info-section">
+  <h2>About LAST REALM</h2>
+  <p>
+    LAST REALM is an intense, futuristic survival arena game where only the smartest and fastest players
+    can survive. Compete in multiple mini-games, improve your skills, and climb the leaderboard to be
+    recognized as the ultimate survivor.
+  </p>
+</section>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Counter Animation -->
+<script>
+const counters = document.querySelectorAll('.counter');
+counters.forEach(counter => {
+  const updateCount = () => {
+    const target = +counter.getAttribute('data-target');
+    const count = +counter.innerText;
+    const increment = target / 200;
+    if(count < target){
+      counter.innerText = Math.ceil(count + increment);
+      setTimeout(updateCount, 20);
+    } else {
+      counter.innerText = target;
+    }
+  }
+  updateCount();
+});
+</script>
+
+<!-- Leaderboard Script -->
+<script>
+let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+leaderboard.sort((a,b)=>b.score - a.score);
+function renderLeaderboard(){
+  const tbody = document.getElementById('leaderboardBody');
+  tbody.innerHTML = '';
+  leaderboard.forEach((entry,index)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${index+1}</td><td>${entry.player}</td><td>${entry.game}</td><td>${entry.score}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+renderLeaderboard();
+</script>
+
+</body>
+</html>
